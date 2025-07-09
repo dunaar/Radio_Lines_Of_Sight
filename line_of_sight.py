@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Project: Line_Of_Sight (line_of_sight.py)
+Project: Line_Of_Sight
+File   : line_of_sight.py
 
 Author: Pessel Arnaud
-Date: 2025-06
-Version: 0.3
+Date: 2025-07
+Version: 1.0
 
 Description:
     This script calculates intervisibility between two geographic points (origin and targets) using a Digital Terrain Model (DTM) stored in shared memory. 
@@ -48,7 +49,7 @@ Usage:
     - A boolean value indicating whether the target is visible from the origin (True for visible, False for obstructed).
 """
 
-__version__ = "0.3"
+__version__ = "1.0"
 
 # === Built-in ===
 import logging

@@ -1,18 +1,38 @@
-
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 """
 Project: Line_Of_Sight
+File   : transform_coord.py
 
 Author: Pessel Arnaud
 Date: 2025-06
-Version: 0.2
+Version: 1.0
 GitHub: https://github.com/dunaar/Line_Of_Sight
 License: MIT
+
+Description:
+    This module provides functions to convert between geographic coordinates (longitude, latitude, altitude) and
+    Cartesian coordinates (x, y, z).
+    It includes functions for both direct conversion and inverse conversion, as well as functions to calculate
+    great circle distances and straight-line distances between points on a sphere, adjusted for altitude. 
+    It uses NumPy for vectorized operations and optionally Numba for multi-core acceleration.
+
+Dependencies:
+    - NumPy: For handling array and scalar data types.
+    - Numba (optional): For JIT compilation and performance optimization.
+
+Usage:
+    This module can be imported to provide functions for coordinate transformations and distance calculations.
+    The `__main__` block can be run to test the functionality with generated data.
+    >>> from transform_coord import geo_to_cart, cart_to_geo, great_circle_distances, straight_line_distances
+    >>> x, y, z = geo_to_cart(lon, lat, alt)
+    >>> lon, lat, alt = cart_to_geo(x, y, z)
+    >>> d_gc = great_circle_distances(lon1, lat1, alt1, lon2, lat2, alt2)
+    >>> d_sl = straight_line_distances(lon1, lat1, alt1, lon2, lat2, alt2)
 """
 
-__version__ = "0.2"
+__version__ = "1.0"
 
 # %% Imports
 # -----------------------------------------------------------------------------

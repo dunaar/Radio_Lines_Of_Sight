@@ -2,11 +2,12 @@
 # -*- coding: utf-8 -*-
 
 """
-Project: Line_Of_Sight (Get Altitude) with Shared Memory Server-Client
+Project: Line_Of_Sight
+File   : get_altitudes_dtm_mp.py
 
 Author: Pessel Arnaud
-Date: 2025-05-02
-Version: 1.5
+Date: 2025-07
+Version: 1.0
 GitHub: https://github.com/dunaar/Line_Of_Sight
 License: MIT
 
@@ -23,7 +24,7 @@ Description:
     in the shared memory blocks.
 """
 
-__version__ = "1.5"
+__version__ = "1.0"
 
 # === Built-in ===
 import argparse

@@ -3,10 +3,11 @@
 
 """
 Project: Line_Of_Sight
+File   : np_msgspec_msgpack_utils.py
 
 Author: Pessel Arnaud
 Date: 2025-05-02
-Version: 0.1
+Version: 1.0
 GitHub: https://github.com/dunaar/Line_Of_Sight
 License: MIT
 
@@ -41,7 +42,7 @@ Usage:
     ```
 """
 
-__version__ = "0.1"
+__version__ = "1.0"
 
 # === Built-in ===
 import logging

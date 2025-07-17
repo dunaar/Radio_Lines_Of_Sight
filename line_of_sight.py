@@ -42,7 +42,7 @@ Usage:
 
     Example command:
     ```bash
-    python line_of_sight.py --tiles_1d_array shm1 --tiles_indices shm2 --tiles_nrows shm3 --tiles_ncols shm4 --origin -3.2 47.5 30 --target -3.3 47.6 60
+    python -m Line_Of_Sight.line_of_sight --tiles_1d_array shm1 --tiles_indices shm2 --tiles_nrows shm3 --tiles_ncols shm4 --origin -3.2 47.5 30 --target -3.3 47.6 60
     ```
 
     Output:
@@ -53,18 +53,24 @@ __version__ = "1.1"
 
 # === Built-in ===
 import logging
+import sys, os
+
+path_to_package = os.path.dirname(os.path.abspath(__file__))
+if path_to_package not in sys.path:
+    # If the package path is not already in sys.path, add it
+    #logging.warning(f"Adding package path to sys.path: {path_to_package}")
+    sys.path.insert(0, path_to_package)
 
 # === Third-party ===
 import matplotlib.pyplot as plt
 import numpy as np
-import numba
 from numba import bool_, float32, int64, jit, prange
 from numba.typed import List as Numba_List
 from numba.types import Array, ListType
 
 # === Local modules ===
-from get_altitudes_dtm_mp import Shm_Dtm_User, get_altitudes_vect_nb
-from transform_coord import R_EARTH, cart_to_geo, geo_to_cart, straight_line_distances
+from Line_Of_Sight.get_altitudes_dtm_mp import Shm_Dtm_User, get_altitudes_vect_nb
+from Line_Of_Sight.transform_coord import R_EARTH, cart_to_geo, geo_to_cart, straight_line_distances
 
 # Constants
 RADIUS_RATIO = np.float32(4./3.)  # Ratio for atmospheric refraction adjustment (standard 4/3 model for radio waves)
@@ -489,7 +495,7 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog='''
 Example:
-    python line_of_sight.py --tiles_1d_array shm1 --tiles_indices shm2 --tiles_nrows shm3 --tiles_ncols shm4 --origin -3.2 47.5 30 --target -3.3 47.6 60
+    python -m Line_Of_Sight.line_of_sight --tiles_1d_array shm1 --tiles_indices shm2 --tiles_nrows shm3 --tiles_ncols shm4 --origin -3.2 47.5 30 --target -3.3 47.6 60
 
 Notes:
     - Shared memory blocks must be pre-allocated and accessible.

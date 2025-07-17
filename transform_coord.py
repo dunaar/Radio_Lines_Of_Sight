@@ -6,8 +6,8 @@ Project: Line_Of_Sight
 File   : transform_coord.py
 
 Author: Pessel Arnaud
-Date: 2025-06
-Version: 1.0
+Date: 2025-07
+Version: 1.1
 GitHub: https://github.com/dunaar/Line_Of_Sight
 License: MIT
 
@@ -16,11 +16,10 @@ Description:
     Cartesian coordinates (x, y, z).
     It includes functions for both direct conversion and inverse conversion, as well as functions to calculate
     great circle distances and straight-line distances between points on a sphere, adjusted for altitude. 
-    It uses NumPy for vectorized operations and optionally Numba for multi-core acceleration.
+    It uses NumPy for vectorized operations.
 
 Dependencies:
     - NumPy: For handling array and scalar data types.
-    - Numba (optional): For JIT compilation and performance optimization.
 
 Usage:
     This module can be imported to provide functions for coordinate transformations and distance calculations.
@@ -32,7 +31,7 @@ Usage:
     >>> d_sl = straight_line_distances(lon1, lat1, alt1, lon2, lat2, alt2)
 """
 
-__version__ = "1.0"
+__version__ = "1.1"
 
 # %% Imports
 # -----------------------------------------------------------------------------
@@ -42,14 +41,6 @@ import numpy as np
 
 NUM_CORES = os.cpu_count()  # Détecter le nombre de cœurs
 #print('NUM_CORES', NUM_CORES)
-
-use_numba = (NUM_CORES > 1) & True
-if use_numba:
-    try:
-        from numba import jit, prange
-        use_numba = True
-    except ImportError:
-        use_numba = False
 # -----------------------------------------------------------------------------
 
 # %% Constantes
@@ -57,9 +48,10 @@ if use_numba:
 R_EARTH = np.float32(6371000.0)
 # -----------------------------------------------------------------------------
 
-# %% Conversion directe : WGS84 → Cartésiennes
-# -----------------------------------------------------------------------------
-def geo_to_cart_numpy(lon, lat, alt, R=R_EARTH):
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Conversion directe : WGS84 → Cartésiennes
+
+def geo_to_cart(lon, lat, alt, R=R_EARTH):
     """
     Convertit des coordonnées géographiques (lon, lat, alt) en coordonnées cartésiennes (x, y, z).
     Hypothèse: terre sphérique
@@ -82,8 +74,9 @@ def geo_to_cart_numpy(lon, lat, alt, R=R_EARTH):
 # -----------------------------------------------------------------------------
 
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-# %% Conversion inverse : Cartésiennes → WGS84
-def cart_to_geo_numpy(x, y, z, R=R_EARTH):
+# Conversion inverse : Cartésiennes → WGS84
+
+def cart_to_geo(x, y, z, R=R_EARTH):
     """
     Convertit des coordonnées cartésiennes (x, y, z) en coordonnées géographiques (lon, lat, alt).
     Hypothèse: terre sphérique
@@ -98,68 +91,6 @@ def cart_to_geo_numpy(x, y, z, R=R_EARTH):
     
     return lon, lat, alt
 # -----------------------------------------------------------------------------
-
-
-# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-# %% geo_to_cart_numba
-if use_numba:
-    @jit(nopython=True, parallel=True, cache=True)
-    def geo_to_cart_numba(lons, lats, alts, R=R_EARTH):
-        R: np.float32 = np.float32(R)
-        
-        is_vect = hasattr(lons, 'size')
-        
-        if not is_vect:
-            lons = np.array([lons], dtype=np.float32)
-            lats = np.array([lats], dtype=np.float32)
-            alts = np.array([alts], dtype=np.float32)
-        
-        n: np.uint32  = np.uint32(lons.size)
-
-        x = np.empty(n, dtype=np.float32)
-        y = np.empty(n, dtype=np.float32)
-        z = np.empty(n, dtype=np.float32)
-        
-        for i in prange(n):
-            lon_rad: np.float32 = np.float32(np.radians(lons[i]))
-            lat_rad: np.float32 = np.float32(np.radians(lats[i]))
-            r_alt   = np.float32(R + alts[i])  # Précalculer R + alt
-
-            sin_lat         = np.sin(lat_rad)
-            cos_lat_cos_lon = np.cos(lat_rad) * np.cos(lon_rad)
-            cos_lat_sin_lon = np.cos(lat_rad) * np.sin(lon_rad)
-
-            x[i] = r_alt * cos_lat_cos_lon
-            y[i] = r_alt * cos_lat_sin_lon
-            z[i] = r_alt * sin_lat
-        
-        if is_vect:
-            return x, y, z
-        else:
-            return x[0], y[0], z[0]
-    
-    @jit(nopython=True, parallel=True)
-    def cart_to_geo_numba(xs, ys, zs, R=R_EARTH):
-        n = np.uint32(xs.size)
-
-        lons = np.empty(n, dtype=np.float32)
-        lats = np.empty(n, dtype=np.float32)
-        alts = np.empty(n, dtype=np.float32)
-
-        for i in prange(n):
-            r_alt = np.float32(np.sqrt(xs[i]**2 + ys[i]**2 + zs[i]**2))
-
-            lons[i] = np.degrees(np.arctan2(ys[i], xs[i]))
-            lats[i] = np.degrees(np.arcsin(zs[i] / r_alt))
-            alts[i] = r_alt - R
-
-        return lons, lats, alts
-    
-    geo_to_cart = geo_to_cart_numba
-    cart_to_geo = cart_to_geo_numba
-else:
-    geo_to_cart = geo_to_cart_numpy
-    cart_to_geo = cart_to_geo_numpy
 
 def great_circle_distances(lons1: np.ndarray, lats1: np.ndarray, alts1: np.ndarray,
                            lons2: np.ndarray, lats2: np.ndarray, alts2: np.ndarray,
@@ -226,6 +157,11 @@ def straight_line_distances(lons1: np.ndarray, lats1: np.ndarray, alts1: np.ndar
     Returns:
     - distances, np.ndarray: 3D Euclidean distances in meters for each pair of points, including altitude.
 
+    Command for testing:
+    ```bash
+    python -m Line_Of_Sight.transform_coord
+    ```
+
     Notes:
     - Converts geographic coordinates (latitude, longitude, altitude) to **Cartesian (x, y, z)** coordinates.
     - Computes the **Euclidean distance** in 3D space.
@@ -249,12 +185,7 @@ def main() -> None:
     lon = np.random.uniform(-180, 180, n).astype(np.float32)
     lat = np.random.uniform(-90, 90, n).astype(np.float32)
     alt = np.random.uniform(-1000, 10000, n).astype(np.float32)
-
-    # Préchauffer Numba si utilisé
-    print('use_numba:', use_numba)
-    if use_numba:
-        x_nb, y_nb, z_nb = geo_to_cart(lon, lat, alt)
-
+    
     # Mesurer les performances
     results = {}
     REPEATS = 5000
@@ -262,25 +193,13 @@ def main() -> None:
     # Tester NumPy
     start = time.perf_counter_ns()
     for _ in range(REPEATS):
-        x_np, y_np, z_np = geo_to_cart_numpy(lon, lat, alt)
+        x_np, y_np, z_np = geo_to_cart(lon, lat, alt)
     results['geo_to_cart_numpy'] = (time.perf_counter_ns() - start) / (REPEATS * 1e9)
 
     start = time.perf_counter_ns()
     for _ in range(REPEATS):
-        lon_np, lat_np, alt_np = cart_to_geo_numpy(x_np, y_np, z_np)
+        lon_np, lat_np, alt_np = cart_to_geo(x_np, y_np, z_np)
     results['cart_to_geo_numpy'] = (time.perf_counter_ns() - start) / (REPEATS * 1e9)
-
-    # Tester Numba
-    if use_numba:
-        start = time.perf_counter_ns()
-        for _ in range(REPEATS):
-            x_nb, y_nb, z_nb = geo_to_cart_numba(lon, lat, alt)
-        results['geo_to_cart_numba'] = (time.perf_counter_ns() - start) / (REPEATS * 1e9)
-
-        start = time.perf_counter_ns()
-        for _ in range(REPEATS):
-            lon_nb, lat_nb, alt_nb = cart_to_geo_numba(x_nb, y_nb, z_nb)
-        results['cart_to_geo_numba'] = (time.perf_counter_ns() - start) / (REPEATS * 1e9)
 
     # Afficher les résultats
     print(f"\nResults for {n} points (float32):")

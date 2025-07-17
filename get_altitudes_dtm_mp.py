@@ -42,7 +42,7 @@ from numba import jit, prange, uint16, uint32, uint64, float32
 from tqdm import tqdm
 
 # === Local modules ===
-from np_msgspec_msgpack_utils import dec
+from .np_msgspec_msgpack_utils import dec
 
 @jit(uint16(uint16[:], uint64[:,:], uint32[:,:], uint32[:,:], float32, float32),
      nopython=True, cache=True)
@@ -574,13 +574,13 @@ def main():
         epilog='''
 Examples:
   Load data and keep shared memory available:
-    python get_altitudes_dtm_mp.py loader input.zip
+    python -m Line_Of_Sight.get_altitudes_dtm_mp loader input.zip
 
   Get altitude using shared memory blocks:
-    python get_altitudes_dtm_mp.py user --tiles_1d_array tiles_1d_array_1234 --tiles_indices tiles_indices_1234 --tiles_nrows tiles_nrows_1234 --tiles_ncols tiles_ncols_1234 --grid-size 1000 55.22 -21.40 55.83 -20.86
+    python -m Line_Of_Sight.get_altitudes_dtm_mp user --tiles_1d_array tiles_1d_array_1234 --tiles_indices tiles_indices_1234 --tiles_nrows tiles_nrows_1234 --tiles_ncols tiles_ncols_1234 --grid-size 1000 55.22 -21.40 55.83 -20.86
 
   Standalone mode with visualization:
-    python get_altitudes_dtm_mp.py standalone input.zip --grid-size 1000 55.22 -21.40 55.83 -20.86
+    python -m Line_Of_Sight.get_altitudes_dtm_mp standalone input.zip --grid-size 1000 55.22 -21.40 55.83 -20.86
 
 Note:
   In user mode, only shared memory block names are required, as metadata (shape and dtype)
@@ -623,13 +623,17 @@ Note:
     # Loader mode: print information and wait for interruption then exit 
     if args.mode == 'loader':
         # Generate example command for user mode
-        logging.info("Examples command for user mode:")
         cmd_shm_params = ' '.join([f"--{key} {name}" for key, name in shm_dtm_loader.shm_names.items()])
-        logging.info('python get_altitudes_dtm_mp.py user ' + cmd_shm_params + ' -5.20 48.20 -4.60 48.60')
-        logging.info('python get_altitudes_dtm_mp.py user ' + cmd_shm_params + ' -17.00 27.90 -16.11 28.61')
-        logging.info('python get_altitudes_dtm_mp.py user ' + cmd_shm_params + ' 55.22 -21.40 55.83 -20.86')
-        logging.info('python get_altitudes_dtm_mp.py user ' + cmd_shm_params + ' -180 -90 180 90')
-        logging.info('python line_of_sight.py ' + cmd_shm_params + ' --origin -3.2 47.5 30 --target -3.3 47.6 60')
+        logging.info('Examples command for user mode:' +
+        f'''
+```
+python -m Line_Of_Sight.get_altitudes_dtm_mp user {cmd_shm_params} -5.20 48.20 -4.60 48.60
+python -m Line_Of_Sight.get_altitudes_dtm_mp user {cmd_shm_params} -17.00 27.90 -16.11 28.61
+python -m Line_Of_Sight.get_altitudes_dtm_mp user {cmd_shm_params} 55.22 -21.40 55.83 -20.86
+python -m Line_Of_Sight.get_altitudes_dtm_mp user {cmd_shm_params} -180 -90 180 90
+python -m Line_Of_Sight.line_of_sight {cmd_shm_params} --origin -3.2 47.5 30 --target -3.3 47.6 60
+```''')
+        logging.info('-- Mode: loader --')
         logging.info("Loader mode completed. Shared memory blocks are ready for use: Press Ctrl+C to exit...")
 
         try:

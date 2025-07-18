@@ -575,14 +575,14 @@ Notes:
         execution_times.append(execution_time)
     
     execution_times = np.array(execution_times) * 1000.  # Convert to milliseconds
-    logging.info(f"Number of time entries      : {len(execution_times)}")
-    logging.info(f"Number of points per entries: {m2_size}")
-    logging.info(f"Total time          : {np.sum(execution_times):.4f} ms")
-    logging.info(f"Mean time           : {np.mean(execution_times):.4f} ms")
-    logging.info(f"Standard deviation  : {np.std(execution_times):.4f} ms")
-    logging.info(f"Minimum time        : {np.min(execution_times):.4f} ms")
-    logging.info(f"Maximum time        : {np.max(execution_times):.4f} ms")
-    logging.info(f"99th percentile time: {np.percentile(execution_times, 99):.4f} ms")
+    logging.info(f"Number of time entries             : {len(execution_times)}")
+    logging.info(f"Number of line-of-sight per entries: {m2_size}")
+    logging.info(f"Total time                         : {np.sum(execution_times):.4f} ms")
+    logging.info(f"Mean time                          : {np.mean(execution_times):.4f} ms")
+    logging.info(f"Standard deviation                 : {np.std(execution_times):.4f} ms")
+    logging.info(f"Minimum time                       : {np.min(execution_times):.4f} ms")
+    logging.info(f"Maximum time                       : {np.max(execution_times):.4f} ms")
+    logging.info(f"99th percentile time               : {np.percentile(execution_times, 99):.4f} ms")
 
     # Close shared memory resources to prevent memory leaks
     shm_dtm_user.close()
@@ -601,7 +601,7 @@ if __name__ == '__main__':
     # Configure logging only when running as main script
     logging.basicConfig(
         level=logging.INFO,
-        format='%(asctime)s - %(levelname)s - %(module)s - %(funcName)s: %(message)s',
+        format='%(asctime)s-%(levelname)s-%(processName)s-%(module)s-%(funcName)s: %(message)s',
         handlers=[logging.StreamHandler()]
     )
 

@@ -23,7 +23,11 @@ def compute_intervisibility(shm_names: Dict[str, str], num_iterations: int = 5, 
         num_iterations (int): Number of intervisibility calculations to perform.
     """
     # Configure logging for the subprocess
-    logging.basicConfig(level=logging.INFO, format='%(processName)18s: %(message)s')
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s-%(levelname)s-%(processName)s-%(module)s-%(funcName)s: %(message)s',
+        handlers=[logging.StreamHandler()]
+    )
     logger = logging.getLogger(__name__)
 
     process_name = mp.current_process().name
@@ -75,7 +79,6 @@ def main():
     Main function to load DTM data into shared memory and launch a subprocess for intervisibility calculations.
     """
     # Configure logging
-    #logging.basicConfig(level=logging.INFO, format='%(processName)18s: %(message)s')
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s-%(levelname)s-%(processName)s-%(module)s-%(funcName)s: %(message)s',

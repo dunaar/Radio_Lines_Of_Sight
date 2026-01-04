@@ -6,6 +6,10 @@ authors:
 title: "Line Of Sight: High-Performance Intervisibility Calculation Tool"
 version: 1.1
 date-released: 2026-01-04
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.18148413
+    description: "Archived version of the software on Zenodo"
 url: "https://github.com/dunaar/Line_Of_Sight"
 license: MIT
 keywords:

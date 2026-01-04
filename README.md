@@ -14,7 +14,7 @@ The **Line Of Sight (LOS)** project is a Python-based tool designed to calculate
 
 ## Dependencies
 
-- **Python**: Version 3.8 or higher
+- **Python**: Version 3.12 or higher
 - **NumPy**: For numerical operations and array handling
 - **Numba**: For performance optimization of computational loops
 - **msgspec**: For efficient serialization and deserialization
